@@ -1,0 +1,15 @@
+[project]
+name = "not-pulled-last-month"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "openpyxl>=3.1.5",
+    "polars>=1.42.1",
+    "ruff>=0.15.21",
+    "textual>=8.2.8",
+    "textual-dev>=1.8.0",
+    "ty>=0.0.58",
+    "types-openpyxl>=3.1.5.20260518",
+]
