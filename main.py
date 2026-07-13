@@ -10,7 +10,7 @@ def main():
 class NotPulledLastMonthApp(App):
     CSS_PATH = "styles.tcss"
     TITLE = "Поиск не загруженных показаний"
-    SUB_TITLE = "Выбираются данные приборов серии NP на основе сравнения Приложения №9 за прошлый месяц и текущей выгрузке."
+    SUB_TITLE = "Выбираются данные приборов серии NP на основе сравнения Приложения №9 за прошлый месяц и текущей выгрузки."
 
     BINDINGS = [
         ("d", "toggle_dark", "Toggle dark mode"),
