@@ -6,3 +6,7 @@ Button {
 Label {
   margin-left: 1;
 }
+
+#application_nine {
+  width: 31;
+}
