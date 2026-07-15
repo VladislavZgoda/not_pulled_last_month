@@ -53,7 +53,7 @@ class NotPulledLastMonthApp(App):
     @on(Button.Pressed, "#application_nine")
     @work
     async def open_application_nine(self) -> None:
-        if opened := await self.push_screen_wait(FileOpen(self._user_desktop)):
+        if opened := await self.push_screen_wait(FileOpen(self._file_location)):
             self.query_one("#application_nine_label", Label).update(str(opened))
             self._application_nine_path = opened
 
