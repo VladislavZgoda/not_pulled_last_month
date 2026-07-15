@@ -1,5 +1,10 @@
+from pathlib import Path
+
+from textual import on, work
 from textual.app import App, ComposeResult
-from textual.widgets import Footer, Header
+from textual.widgets import Button, Footer, Header, Label
+
+from textual_fspicker import FileOpen
 
 
 def main():
@@ -8,6 +13,11 @@ def main():
 
 
 class NotPulledLastMonthApp(App):
+    def __init__(self) -> None:
+        self._meter_ridings_path: Path | None = None
+        self._user_desktop = Path.home() / "Desktop"
+        super().__init__()
+
     CSS_PATH = "styles.tcss"
     TITLE = "Поиск не загруженных показаний"
     SUB_TITLE = "Выбираются данные приборов серии NP на основе сравнения Приложения №9 за прошлый месяц и текущей выгрузки."
@@ -19,9 +29,20 @@ class NotPulledLastMonthApp(App):
     def compose(self) -> ComposeResult:
         yield Header()
         yield Footer()
+        yield Button(
+            "Выберите файл с показаниями", variant="primary", id="meter_ridings"
+        )
+        yield Label(variant="success", id="meter_ridings_label")
 
     def on_mount(self) -> None:
         self.screen.styles.border = ("panel", "snow")
+
+    @on(Button.Pressed, "#meter_ridings")
+    @work
+    async def open_meter_ridings(self) -> None:
+        if opened := await self.push_screen_wait(FileOpen(self._user_desktop)):
+            self.query_one("#meter_ridings_label", Label).update(str(opened))
+            self._meter_ridings_path = opened
 
     def action_toggle_dark(self) -> None:
         self.theme = (

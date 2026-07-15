@@ -1,0 +1,8 @@
+Button {
+  margin: 1 0 1 1;
+  padding: 0 1 0 1;
+}
+
+Label {
+  margin-left: 1;
+}
