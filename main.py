@@ -13,13 +13,15 @@ def main():
     app.run()
 
 
+FILE_LOCATION = (
+    Path.home() / "Desktop" if platform.system() == "Windows" else Path.home()
+)
+
+
 class NotPulledLastMonthApp(App):
     def __init__(self) -> None:
         self._meter_ridings_path: Path | None = None
         self._application_nine_path: Path | None = None
-        self._file_location = (
-            Path.home() / "Desktop" if platform.system() == "Windows" else Path.home()
-        )
         super().__init__()
 
     CSS_PATH = "styles.tcss"
@@ -46,14 +48,14 @@ class NotPulledLastMonthApp(App):
     @on(Button.Pressed, "#meter_ridings")
     @work
     async def open_meter_ridings(self) -> None:
-        if opened := await self.push_screen_wait(FileOpen(self._file_location)):
+        if opened := await self.push_screen_wait(FileOpen(FILE_LOCATION)):
             self.query_one("#meter_ridings_label", Label).update(str(opened))
             self._meter_ridings_path = opened
 
     @on(Button.Pressed, "#application_nine")
     @work
     async def open_application_nine(self) -> None:
-        if opened := await self.push_screen_wait(FileOpen(self._file_location)):
+        if opened := await self.push_screen_wait(FileOpen(FILE_LOCATION)):
             self.query_one("#application_nine_label", Label).update(str(opened))
             self._application_nine_path = opened
 
