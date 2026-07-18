@@ -10,3 +10,8 @@ Label {
 #application_nine {
   width: 31;
 }
+
+MeterRidings, ApplicationNine {
+    height: auto;
+    margin: 0;
+}
