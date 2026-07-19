@@ -10,8 +10,20 @@ class RidingsFilter:
         self.application_nine_path = application_nine_path
 
     def filter(self) -> None:
-        self._filter_application_nine()
+        useless_meters = self._filter_application_nine()
+        pprint(useless_meters)
 
     def _filter_application_nine(self) -> pl.Series:
-        df = pl.read_excel(self.application_nine_path, read_options={"header_row": 1})
-        pprint(df)
+        return (
+            pl.read_excel(
+                source=self.application_nine_path,
+                sheet_name="Быт",
+                read_options={"header_row": 1},
+            )
+            .filter(
+                pl.col("Тип ПУ").str.starts_with("NP"),
+                pl.col("Дата").dt.day().is_between(21, 25, closed="both"),
+            )
+            .select(pl.col("Номер_ПУ").cast(pl.Int32))
+            .to_series()
+        )
