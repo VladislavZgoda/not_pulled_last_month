@@ -6,8 +6,9 @@ from textual.app import App, ComposeResult, Widget
 from textual.message import Message
 from textual.reactive import var
 from textual.widgets import Button, Footer, Header, Label
-
 from textual_fspicker import FileOpen
+
+from ridings_filter import RidingsFilter
 
 
 def main():
@@ -37,17 +38,25 @@ class NotPulledLastMonthApp(App):
         yield Footer()
         yield MeterRidings()
         yield ApplicationNine()
+        yield Button("Отфильтровать показания", id="filter_ridings", disabled=True)
 
     def on_mount(self) -> None:
         self.screen.styles.border = ("panel", "snow")
 
     def on_meter_ridings_path_selected(self, event: MeterRidingsPathSelected) -> None:
         self.meter_ridings_path = event.file_path
+        self._check_and_enable_filter_bth()
 
     def on_application_nine_path_selected(
         self, event: ApplicationNinePathSelected
     ) -> None:
         self.application_nine_path = event.file_path
+        self._check_and_enable_filter_bth()
+
+    @on(Button.Pressed, "#filter_ridings")
+    def handle_filter_btn(self) -> None:
+        if self.meter_ridings_path and self.application_nine_path:
+            RidingsFilter(self.meter_ridings_path, self.application_nine_path).test()
 
     def action_toggle_dark(self) -> None:
         self.theme = (
@@ -58,6 +67,12 @@ class NotPulledLastMonthApp(App):
             self.screen.styles.border = ("panel", "snow")
         else:
             self.screen.styles.border = ("panel", "darkslategray")
+
+    def _check_and_enable_filter_bth(self) -> None:
+        if self.meter_ridings_path and self.application_nine_path:
+            filter_ridings_btn = self.query_one("#filter_ridings", Button)
+            filter_ridings_btn.disabled = False
+            filter_ridings_btn.variant = "success"
 
 
 class MeterRidingsPathSelected(Message):

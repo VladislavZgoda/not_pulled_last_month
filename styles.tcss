@@ -1,14 +1,11 @@
 Button {
   margin: 1 0 1 1;
   padding: 0 1 0 1;
+  width: 31;
 }
 
 Label {
   margin-left: 1;
-}
-
-#application_nine {
-  width: 31;
 }
 
 MeterRidings, ApplicationNine {
