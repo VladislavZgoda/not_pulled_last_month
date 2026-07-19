@@ -1,4 +1,7 @@
 from pathlib import Path
+from pprint import pprint
+
+import polars as pl
 
 
 class RidingsFilter:
@@ -6,6 +9,9 @@ class RidingsFilter:
         self.meter_ridings_path = meter_ridings_path
         self.application_nine_path = application_nine_path
 
-    def test(self) -> None:
-        print(self.meter_ridings_path)
-        print(self.application_nine_path)
+    def filter(self) -> None:
+        self._filter_application_nine()
+
+    def _filter_application_nine(self) -> pl.Series:
+        df = pl.read_excel(self.application_nine_path, read_options={"header_row": 1})
+        pprint(df)

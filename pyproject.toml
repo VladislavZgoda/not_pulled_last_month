@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "fastexcel>=0.20.2",
     "openpyxl>=3.1.5",
     "polars>=1.42.1",
     "ruff>=0.15.21",

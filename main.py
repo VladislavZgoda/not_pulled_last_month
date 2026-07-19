@@ -56,7 +56,7 @@ class NotPulledLastMonthApp(App):
     @on(Button.Pressed, "#filter_ridings")
     def handle_filter_btn(self) -> None:
         if self.meter_ridings_path and self.application_nine_path:
-            RidingsFilter(self.meter_ridings_path, self.application_nine_path).test()
+            RidingsFilter(self.meter_ridings_path, self.application_nine_path).filter()
 
     def action_toggle_dark(self) -> None:
         self.theme = (
