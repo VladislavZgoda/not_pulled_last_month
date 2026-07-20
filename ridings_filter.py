@@ -20,6 +20,12 @@ class RidingsFilter:
                 sheet_name="Быт",
                 read_options={"header_row": 1},
             )
+            .with_columns(
+                pl.coalesce(
+                    pl.col("Дата").str.to_datetime("%d.%m.%Y", strict=False),
+                    pl.col("Дата").str.to_datetime("%Y-%m-%d", strict=False),
+                ).alias("Дата")
+            )
             .filter(
                 pl.col("Тип ПУ").str.starts_with("NP"),
                 pl.col("Дата").dt.day().is_between(21, 25, closed="both"),
