@@ -11,7 +11,8 @@ class RidingsFilter:
 
     def filter(self) -> None:
         useless_meters = self._filter_application_nine()
-        pprint(useless_meters)
+        df_meter_ridings = self._filter_meter_ridings(useless_meters)
+        pprint(df_meter_ridings)
 
     def _filter_application_nine(self) -> pl.Series:
         return (
@@ -29,4 +30,19 @@ class RidingsFilter:
             )
             .select(pl.col("Номер_ПУ").cast(pl.Int32))
             .to_series()
+        )
+
+    def _filter_meter_ridings(self, useless_meters: pl.Series) -> pl.DataFrame:
+        return (
+            pl.read_excel(
+                source=self.meter_ridings_path,
+                read_options={"header_row": 1},
+            )
+            .head(-1)
+            .filter(
+                ~pl.col("Серийный №").cast(pl.Int32).is_in(useless_meters),
+                pl.col("Тип устройства").str.starts_with("NP"),
+                pl.col("Код потребителя").str.strip_chars().str.starts_with("230700"),
+                pl.col("Наименование точки учета") != "ОДПУ",
+            )
         )
