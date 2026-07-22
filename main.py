@@ -45,20 +45,20 @@ class NotPulledLastMonthApp(App):
         yield ApplicationNine()
         yield Button("Отфильтровать показания", id="filter_ridings", disabled=True)
         yield Button("Сохранить файл", id="save_file", disabled=True)
-        yield Label(variant="success", id="save_bth_label")
+        yield Label(variant="success", id="save_btn_label")
 
     def on_mount(self) -> None:
         self.screen.styles.border = ("panel", "snow")
 
     def on_meter_ridings_path_selected(self, event: MeterRidingsPathSelected) -> None:
         self.meter_ridings_path = event.file_path
-        self._check_and_enable_filter_bth()
+        self._check_and_enable_filter_btn
 
     def on_application_nine_path_selected(
         self, event: ApplicationNinePathSelected
     ) -> None:
         self.application_nine_path = event.file_path
-        self._check_and_enable_filter_bth()
+        self._check_and_enable_filter_btn
 
     @on(Button.Pressed, "#filter_ridings")
     def handle_filter_btn(self) -> None:
@@ -81,7 +81,7 @@ class NotPulledLastMonthApp(App):
         if save_path := await self.push_screen_wait(FileSave(FILE_LOCATION)):
             with open(f"{save_path}.xlsx", "wb") as f:
                 f.write(self.xlsx_buffer.getvalue())
-            self.query_one("#save_bth_label", Label).update("Файл сохранён.")
+            self.query_one("#save_btn_label", Label).update("Файл сохранён.")
 
     def action_toggle_dark(self) -> None:
         self.theme = (
@@ -93,7 +93,7 @@ class NotPulledLastMonthApp(App):
         else:
             self.screen.styles.border = ("panel", "darkslategray")
 
-    def _check_and_enable_filter_bth(self) -> None:
+    def _check_and_enable_filter_btn(self) -> None:
         if self.meter_ridings_path is None:
             return
         if self.application_nine_path is None:
