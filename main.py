@@ -79,7 +79,7 @@ class NotPulledLastMonthApp(App):
         if self.xlsx_buffer is None:
             raise ValueError("Требуется объект BytesIO, получен None.")
         if save_path := await self.push_screen_wait(FileSave(FILE_LOCATION)):
-            with open(f"{save_path}.xlsx", "wb") as f:
+            with open(save_path.with_suffix(".xlsx"), "wb") as f:
                 f.write(self.xlsx_buffer.getvalue())
             self.query_one("#save_btn_label", Label).update("Файл сохранён.")
 
