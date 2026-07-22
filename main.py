@@ -129,7 +129,7 @@ class MeterRidings(Widget):
         if file_opened := await self.app.push_screen_wait(
             FileOpen(FILE_LOCATION, filters=FILE_FILTER)
         ):
-            self.query_one("#meter_ridings_label", Label).update(str(file_opened))
+            self.query_one("#meter_ridings_label", Label).update(file_opened.name)
             self.post_message(MeterRidingsPathSelected(file_opened))
 
 
@@ -144,7 +144,7 @@ class ApplicationNine(Widget):
         if file_opened := await self.app.push_screen_wait(
             FileOpen(FILE_LOCATION, filters=FILE_FILTER)
         ):
-            self.query_one("#application_nine_label", Label).update(str(file_opened))
+            self.query_one("#application_nine_label", Label).update(file_opened.name)
             self.post_message(ApplicationNinePathSelected(file_opened))
 
 
