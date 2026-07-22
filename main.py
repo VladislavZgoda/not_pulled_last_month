@@ -7,7 +7,7 @@ from textual.app import App, ComposeResult, Widget
 from textual.message import Message
 from textual.reactive import var
 from textual.widgets import Button, Footer, Header, Label
-from textual_fspicker import FileOpen, Filters
+from textual_fspicker import FileOpen, FileSave, Filters
 
 from create_workbook import create_wb
 from ridings_filter import RidingsFilter
@@ -44,6 +44,8 @@ class NotPulledLastMonthApp(App):
         yield MeterRidings()
         yield ApplicationNine()
         yield Button("Отфильтровать показания", id="filter_ridings", disabled=True)
+        yield Button("Сохранить файл", id="save_file", disabled=True)
+        yield Label(variant="success", id="save_bth_label")
 
     def on_mount(self) -> None:
         self.screen.styles.border = ("panel", "snow")
@@ -65,6 +67,19 @@ class NotPulledLastMonthApp(App):
                 self.meter_ridings_path, self.application_nine_path
             ).filter()
             self.xlsx_buffer = create_wb(df)
+            save_file_btn = self.query_one("#save_file", Button)
+            save_file_btn.disabled = False
+            save_file_btn.variant = "success"
+
+    @on(Button.Pressed, "#save_file")
+    @work
+    async def handle_save_btn(self) -> None:
+        if not self.xlsx_buffer:
+            return
+        if save_path := await self.push_screen_wait(FileSave(FILE_LOCATION)):
+            with open(f"{save_path}.xlsx", "wb") as f:
+                f.write(self.xlsx_buffer.getvalue())
+            self.query_one("#save_bth_label", Label).update("Файл сохранён.")
 
     def action_toggle_dark(self) -> None:
         self.theme = (
@@ -80,7 +95,7 @@ class NotPulledLastMonthApp(App):
         if self.meter_ridings_path and self.application_nine_path:
             filter_ridings_btn = self.query_one("#filter_ridings", Button)
             filter_ridings_btn.disabled = False
-            filter_ridings_btn.variant = "success"
+            filter_ridings_btn.variant = "warning"
 
 
 class MeterRidingsPathSelected(Message):
