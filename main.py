@@ -7,7 +7,7 @@ from textual.app import App, ComposeResult, Widget
 from textual.message import Message
 from textual.reactive import var
 from textual.widgets import Button, Footer, Header, Label
-from textual_fspicker import FileOpen
+from textual_fspicker import FileOpen, Filters
 
 from create_workbook import create_wb
 from ridings_filter import RidingsFilter
@@ -21,6 +21,8 @@ def main():
 FILE_LOCATION = (
     Path.home() / "Desktop" if platform.system() == "Windows" else Path.home()
 )
+
+FILE_FILTER = Filters(("XLSX", lambda p: p.suffix.lower() == ".xlsx"))
 
 
 class NotPulledLastMonthApp(App):
@@ -103,7 +105,9 @@ class MeterRidings(Widget):
     @on(Button.Pressed, "#meter_ridings")
     @work
     async def open_meter_ridings(self) -> None:
-        if file_opened := await self.app.push_screen_wait(FileOpen(FILE_LOCATION)):
+        if file_opened := await self.app.push_screen_wait(
+            FileOpen(FILE_LOCATION, filters=FILE_FILTER)
+        ):
             self.query_one("#meter_ridings_label", Label).update(str(file_opened))
             self.post_message(MeterRidingsPathSelected(file_opened))
 
@@ -116,7 +120,9 @@ class ApplicationNine(Widget):
     @on(Button.Pressed, "#application_nine")
     @work
     async def open_application_nine(self) -> None:
-        if file_opened := await self.app.push_screen_wait(FileOpen(FILE_LOCATION)):
+        if file_opened := await self.app.push_screen_wait(
+            FileOpen(FILE_LOCATION, filters=FILE_FILTER)
+        ):
             self.query_one("#application_nine_label", Label).update(str(file_opened))
             self.post_message(ApplicationNinePathSelected(file_opened))
 
