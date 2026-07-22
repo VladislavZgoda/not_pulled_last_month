@@ -52,13 +52,13 @@ class NotPulledLastMonthApp(App):
 
     def on_meter_ridings_path_selected(self, event: MeterRidingsPathSelected) -> None:
         self.meter_ridings_path = event.file_path
-        self._check_and_enable_filter_btn
+        self._check_and_enable_filter_btn()
 
     def on_application_nine_path_selected(
         self, event: ApplicationNinePathSelected
     ) -> None:
         self.application_nine_path = event.file_path
-        self._check_and_enable_filter_btn
+        self._check_and_enable_filter_btn()
 
     @on(Button.Pressed, "#filter_ridings")
     def handle_filter_btn(self) -> None:
