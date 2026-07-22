@@ -62,20 +62,22 @@ class NotPulledLastMonthApp(App):
 
     @on(Button.Pressed, "#filter_ridings")
     def handle_filter_btn(self) -> None:
-        if self.meter_ridings_path and self.application_nine_path:
-            df = RidingsFilter(
-                self.meter_ridings_path, self.application_nine_path
-            ).filter()
-            self.xlsx_buffer = create_wb(df)
-            save_file_btn = self.query_one("#save_file", Button)
-            save_file_btn.disabled = False
-            save_file_btn.variant = "success"
+        if self.meter_ridings_path is None:
+            raise ValueError("Требуется объект Path, получен None.")
+        if self.application_nine_path is None:
+            raise ValueError("Требуется объект Path, получен None.")
+
+        df = RidingsFilter(self.meter_ridings_path, self.application_nine_path).filter()
+        self.xlsx_buffer = create_wb(df)
+        save_file_btn = self.query_one("#save_file", Button)
+        save_file_btn.disabled = False
+        save_file_btn.variant = "success"
 
     @on(Button.Pressed, "#save_file")
     @work
     async def handle_save_btn(self) -> None:
-        if not self.xlsx_buffer:
-            return
+        if self.xlsx_buffer is None:
+            raise ValueError("Требуется объект BytesIO, получен None.")
         if save_path := await self.push_screen_wait(FileSave(FILE_LOCATION)):
             with open(f"{save_path}.xlsx", "wb") as f:
                 f.write(self.xlsx_buffer.getvalue())
@@ -92,10 +94,14 @@ class NotPulledLastMonthApp(App):
             self.screen.styles.border = ("panel", "darkslategray")
 
     def _check_and_enable_filter_bth(self) -> None:
-        if self.meter_ridings_path and self.application_nine_path:
-            filter_ridings_btn = self.query_one("#filter_ridings", Button)
-            filter_ridings_btn.disabled = False
-            filter_ridings_btn.variant = "warning"
+        if self.meter_ridings_path is None:
+            return
+        if self.application_nine_path is None:
+            return
+
+        filter_ridings_btn = self.query_one("#filter_ridings", Button)
+        filter_ridings_btn.disabled = False
+        filter_ridings_btn.variant = "warning"
 
 
 class MeterRidingsPathSelected(Message):
