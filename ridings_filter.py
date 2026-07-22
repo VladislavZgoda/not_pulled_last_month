@@ -1,5 +1,4 @@
 from pathlib import Path
-from pprint import pprint
 
 import polars as pl
 
@@ -9,10 +8,10 @@ class RidingsFilter:
         self.meter_ridings_path = meter_ridings_path
         self.application_nine_path = application_nine_path
 
-    def filter(self) -> None:
+    def filter(self) -> pl.DataFrame:
         useless_meters = self._filter_application_nine()
         df_meter_ridings = self._filter_meter_ridings(useless_meters)
-        pprint(df_meter_ridings)
+        return df_meter_ridings
 
     def _filter_application_nine(self) -> pl.Series:
         return (

@@ -1,5 +1,6 @@
-from pathlib import Path
 import platform
+from io import BytesIO
+from pathlib import Path
 
 from textual import on, work
 from textual.app import App, ComposeResult, Widget
@@ -8,6 +9,7 @@ from textual.reactive import var
 from textual.widgets import Button, Footer, Header, Label
 from textual_fspicker import FileOpen
 
+from create_workbook import create_wb
 from ridings_filter import RidingsFilter
 
 
@@ -24,6 +26,7 @@ FILE_LOCATION = (
 class NotPulledLastMonthApp(App):
     meter_ridings_path: var[Path | None] = var(None)
     application_nine_path: var[Path | None] = var(None)
+    xlsx_buffer: var[BytesIO | None] = var(None)
 
     CSS_PATH = "styles.tcss"
     TITLE = "Поиск не загруженных показаний"
@@ -56,7 +59,10 @@ class NotPulledLastMonthApp(App):
     @on(Button.Pressed, "#filter_ridings")
     def handle_filter_btn(self) -> None:
         if self.meter_ridings_path and self.application_nine_path:
-            RidingsFilter(self.meter_ridings_path, self.application_nine_path).filter()
+            df = RidingsFilter(
+                self.meter_ridings_path, self.application_nine_path
+            ).filter()
+            self.xlsx_buffer = create_wb(df)
 
     def action_toggle_dark(self) -> None:
         self.theme = (
