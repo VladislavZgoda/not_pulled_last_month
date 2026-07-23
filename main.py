@@ -45,7 +45,6 @@ class NotPulledLastMonthApp(App):
         yield ApplicationNine()
         yield Button("Отфильтровать показания", id="filter_ridings", disabled=True)
         yield Button("Сохранить файл", id="save_file", disabled=True)
-        yield Label(variant="success", id="save_btn_label")
 
     def on_mount(self) -> None:
         self.screen.styles.border = ("panel", "snow")
@@ -80,7 +79,7 @@ class NotPulledLastMonthApp(App):
         if save_path := await self.push_screen_wait(FileSave(FILE_LOCATION)):
             with open(save_path.with_suffix(".xlsx"), "wb") as f:
                 f.write(self.xlsx_buffer.getvalue())
-            self.query_one("#save_btn_label", Label).update("Файл сохранён.")
+            self.notify("Файл сохранён.", severity="information", timeout=10)
 
     def action_toggle_dark(self) -> None:
         self.theme = (
