@@ -66,8 +66,8 @@ class NotPulledLastMonthApp(App):
 
         self._check_and_enable_filter_btn()
 
-    @work(thread=True)
     @on(Button.Pressed, "#filter_readings")
+    @work(thread=True)
     def handle_filter_btn(self) -> None:
         if self.meter_readings_path is None:
             raise ValueError("Требуется объект Path, получен None.")
@@ -142,7 +142,7 @@ class FilePicker(Widget):
 
     def compose(self) -> ComposeResult:
         yield Button(self.button_text, variant="primary", id=f"{self.picker_id}_btn")
-        yield Label(id=f"{self.picker_id}_label")
+        yield Label(id=f"{self.picker_id}_label", variant="success")
 
     @on(Button.Pressed)
     @work
