@@ -67,6 +67,7 @@ class NotPulledLastMonthApp(App):
         if self.application_nine_path is None:
             raise ValueError("Требуется объект Path, получен None.")
 
+        self.call_from_thread(self._on_filter_start)
         df = RidingsFilter(self.meter_ridings_path, self.application_nine_path).filter()
         xlsx_buffer = create_wb(df)
         self.call_from_thread(self._on_filter_done, xlsx_buffer)
@@ -93,9 +94,13 @@ class NotPulledLastMonthApp(App):
 
     def _on_filter_done(self, xlsx_buffer: BytesIO) -> None:
         self.xlsx_buffer = xlsx_buffer
+        self.query_one("#filter_ridings", Button).loading = False
         save_file_btn = self.query_one("#save_file", Button)
         save_file_btn.disabled = False
         save_file_btn.variant = "success"
+
+    def _on_filter_start(self) -> None:
+        self.query_one("#filter_ridings", Button).loading = True
 
     def _check_and_enable_filter_btn(self) -> None:
         if self.meter_ridings_path is None:
