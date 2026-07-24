@@ -10,7 +10,7 @@ from textual.widgets import Button, Footer, Header, Label
 from textual_fspicker import FileOpen, FileSave, Filters
 
 from create_workbook import create_wb
-from ridings_filter import RidingsFilter
+from readings_filter import ReadingsFilter
 
 
 def main():
@@ -26,7 +26,7 @@ FILE_FILTER = Filters(("XLSX", lambda p: p.suffix.lower() == ".xlsx"))
 
 
 class NotPulledLastMonthApp(App):
-    meter_ridings_path: var[Path | None] = var(None)
+    meter_readings_path: var[Path | None] = var(None)
     application_nine_path: var[Path | None] = var(None)
     xlsx_buffer: var[BytesIO | None] = var(None)
 
@@ -43,13 +43,13 @@ class NotPulledLastMonthApp(App):
         yield Footer()
         yield FilePicker(
             "Выберите файл с показаниями",
-            "meter_ridings",
+            "meter_readings",
         )
         yield FilePicker(
             "Выберите приложение №9",
             "application_nine",
         )
-        yield Button("Отфильтровать показания", id="filter_ridings", disabled=True)
+        yield Button("Отфильтровать показания", id="filter_readings", disabled=True)
         yield Button("Сохранить файл", id="save_file", disabled=True)
 
     def on_mount(self) -> None:
@@ -57,8 +57,8 @@ class NotPulledLastMonthApp(App):
 
     def on_file_path_selected(self, event: FilePathSelected) -> None:
         match event.picker_id:
-            case "meter_ridings":
-                self.meter_ridings_path = event.file_path
+            case "meter_readings":
+                self.meter_readings_path = event.file_path
             case "application_nine":
                 self.application_nine_path = event.file_path
             case _:
@@ -67,15 +67,17 @@ class NotPulledLastMonthApp(App):
         self._check_and_enable_filter_btn()
 
     @work(thread=True)
-    @on(Button.Pressed, "#filter_ridings")
+    @on(Button.Pressed, "#filter_readings")
     def handle_filter_btn(self) -> None:
-        if self.meter_ridings_path is None:
+        if self.meter_readings_path is None:
             raise ValueError("Требуется объект Path, получен None.")
         if self.application_nine_path is None:
             raise ValueError("Требуется объект Path, получен None.")
 
         self.call_from_thread(self._on_filter_start)
-        df = RidingsFilter(self.meter_ridings_path, self.application_nine_path).filter()
+        df = ReadingsFilter(
+            self.meter_readings_path, self.application_nine_path
+        ).filter()
         xlsx_buffer = create_wb(df)
         self.call_from_thread(self._on_filter_done, xlsx_buffer)
 
@@ -102,21 +104,21 @@ class NotPulledLastMonthApp(App):
 
     def _on_filter_done(self, xlsx_buffer: BytesIO) -> None:
         self.xlsx_buffer = xlsx_buffer
-        self.query_one("#filter_ridings", Button).loading = False
+        self.query_one("#filter_readings", Button).loading = False
         save_file_btn = self.query_one("#save_file", Button)
         save_file_btn.disabled = False
         save_file_btn.variant = "success"
 
     def _on_filter_start(self) -> None:
-        self.query_one("#filter_ridings", Button).loading = True
+        self.query_one("#filter_readings", Button).loading = True
 
     def _check_and_enable_filter_btn(self) -> None:
-        if self.meter_ridings_path is None:
+        if self.meter_readings_path is None:
             return
         if self.application_nine_path is None:
             return
 
-        filter_ridings_btn = self.query_one("#filter_ridings", Button)
+        filter_ridings_btn = self.query_one("#filter_readings", Button)
         filter_ridings_btn.disabled = False
         filter_ridings_btn.variant = "warning"
 

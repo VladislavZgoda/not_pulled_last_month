@@ -3,14 +3,14 @@ from pathlib import Path
 import polars as pl
 
 
-class RidingsFilter:
-    def __init__(self, meter_ridings_path: Path, application_nine_path: Path) -> None:
-        self.meter_ridings_path = meter_ridings_path
+class ReadingsFilter:
+    def __init__(self, meter_readings_path: Path, application_nine_path: Path) -> None:
+        self.meter_ridings_path = meter_readings_path
         self.application_nine_path = application_nine_path
 
     def filter(self) -> pl.DataFrame:
         useless_meters = self._filter_application_nine()
-        df_meter_ridings = self._filter_meter_ridings(useless_meters)
+        df_meter_ridings = self._filter_meter_readings(useless_meters)
         return df_meter_ridings
 
     def _filter_application_nine(self) -> pl.Series:
@@ -31,7 +31,7 @@ class RidingsFilter:
             .to_series()
         )
 
-    def _filter_meter_ridings(self, useless_meters: pl.Series) -> pl.DataFrame:
+    def _filter_meter_readings(self, useless_meters: pl.Series) -> pl.DataFrame:
         return (
             pl.read_excel(
                 source=self.meter_ridings_path,
