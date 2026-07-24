@@ -8,7 +8,7 @@ Label {
   margin-left: 1;
 }
 
-MeterRidings, ApplicationNine {
+FilePicker {
     height: auto;
     margin: 0;
 }

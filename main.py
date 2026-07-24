@@ -41,22 +41,29 @@ class NotPulledLastMonthApp(App):
     def compose(self) -> ComposeResult:
         yield Header()
         yield Footer()
-        yield MeterRidings()
-        yield ApplicationNine()
+        yield FilePicker(
+            "Выберите файл с показаниями",
+            "meter_ridings",
+        )
+        yield FilePicker(
+            "Выберите приложение №9",
+            "application_nine",
+        )
         yield Button("Отфильтровать показания", id="filter_ridings", disabled=True)
         yield Button("Сохранить файл", id="save_file", disabled=True)
 
     def on_mount(self) -> None:
         self.screen.styles.border = ("panel", "snow")
 
-    def on_meter_ridings_path_selected(self, event: MeterRidingsPathSelected) -> None:
-        self.meter_ridings_path = event.file_path
-        self._check_and_enable_filter_btn()
+    def on_file_path_selected(self, event: FilePathSelected) -> None:
+        match event.picker_id:
+            case "meter_ridings":
+                self.meter_ridings_path = event.file_path
+            case "application_nine":
+                self.application_nine_path = event.file_path
+            case _:
+                return
 
-    def on_application_nine_path_selected(
-        self, event: ApplicationNinePathSelected
-    ) -> None:
-        self.application_nine_path = event.file_path
         self._check_and_enable_filter_btn()
 
     @work(thread=True)
@@ -87,10 +94,11 @@ class NotPulledLastMonthApp(App):
             "textual-dark" if self.theme == "textual-light" else "textual-light"
         )
 
-        if self.theme == "textual-dark":
-            self.screen.styles.border = ("panel", "snow")
-        else:
-            self.screen.styles.border = ("panel", "darkslategray")
+        self.screen.styles.border = (
+            ("panel", "snow")
+            if self.theme == "textual-dark"
+            else ("panel", "darkslategray")
+        )
 
     def _on_filter_done(self, xlsx_buffer: BytesIO) -> None:
         self.xlsx_buffer = xlsx_buffer
@@ -113,48 +121,38 @@ class NotPulledLastMonthApp(App):
         filter_ridings_btn.variant = "warning"
 
 
-class MeterRidingsPathSelected(Message):
-    def __init__(self, file_path: Path) -> None:
+class FilePathSelected(Message):
+    def __init__(self, file_path: Path, picker_id: str) -> None:
         self.file_path = file_path
+        self.picker_id = picker_id
         super().__init__()
 
 
-class ApplicationNinePathSelected(Message):
-    def __init__(self, file_path: Path) -> None:
-        self.file_path = file_path
+class FilePicker(Widget):
+    def __init__(
+        self,
+        button_text: str,
+        picker_id: str,
+    ) -> None:
+        self.button_text = button_text
+        self.picker_id = picker_id
         super().__init__()
 
-
-class MeterRidings(Widget):
     def compose(self) -> ComposeResult:
-        yield Button(
-            "Выберите файл с показаниями", variant="primary", id="meter_ridings"
-        )
-        yield Label(variant="success", id="meter_ridings_label")
+        yield Button(self.button_text, variant="primary", id=f"{self.picker_id}_btn")
+        yield Label(id=f"{self.picker_id}_label")
 
-    @on(Button.Pressed, "#meter_ridings")
+    @on(Button.Pressed)
     @work
-    async def open_meter_ridings(self) -> None:
+    async def open_file(self, event: Button.Pressed) -> None:
+        if not event.button.id == f"{self.picker_id}_btn":
+            return
+
         if file_opened := await self.app.push_screen_wait(
             FileOpen(FILE_LOCATION, filters=FILE_FILTER)
         ):
-            self.query_one("#meter_ridings_label", Label).update(file_opened.name)
-            self.post_message(MeterRidingsPathSelected(file_opened))
-
-
-class ApplicationNine(Widget):
-    def compose(self) -> ComposeResult:
-        yield Button("Выберите приложение №9", variant="primary", id="application_nine")
-        yield Label(variant="success", id="application_nine_label")
-
-    @on(Button.Pressed, "#application_nine")
-    @work
-    async def open_application_nine(self) -> None:
-        if file_opened := await self.app.push_screen_wait(
-            FileOpen(FILE_LOCATION, filters=FILE_FILTER)
-        ):
-            self.query_one("#application_nine_label", Label).update(file_opened.name)
-            self.post_message(ApplicationNinePathSelected(file_opened))
+            self.query_one(f"#{self.picker_id}_label", Label).update(file_opened.name)
+            self.post_message(FilePathSelected(file_opened, self.picker_id))
 
 
 if __name__ == "__main__":
