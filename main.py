@@ -89,7 +89,7 @@ class NotPulledLastMonthApp(App):
         if save_path := await self.push_screen_wait(FileSave(FILE_LOCATION)):
             with open(save_path.with_suffix(".xlsx"), "wb") as f:
                 f.write(self.xlsx_buffer.getvalue())
-            self.notify("Файл сохранён.", severity="information", timeout=10)
+            self.notify("Файл сохранён.", timeout=10)
 
     def action_toggle_dark(self) -> None:
         self.theme = (
@@ -102,6 +102,9 @@ class NotPulledLastMonthApp(App):
             else ("panel", "darkslategray")
         )
 
+    def _on_filter_start(self) -> None:
+        self.query_one("#filter_readings", Button).loading = True
+
     def _on_filter_done(self, xlsx_buffer: BytesIO) -> None:
         self.notify("Показания отфильтрованы.")
         self.xlsx_buffer = xlsx_buffer
@@ -109,9 +112,6 @@ class NotPulledLastMonthApp(App):
         save_file_btn = self.query_one("#save_file", Button)
         save_file_btn.disabled = False
         save_file_btn.variant = "success"
-
-    def _on_filter_start(self) -> None:
-        self.query_one("#filter_readings", Button).loading = True
 
     def _check_and_enable_filter_btn(self) -> None:
         if self.meter_readings_path is None:
