@@ -64,6 +64,7 @@ class NotPulledLastMonthApp(App):
             case _:
                 return
 
+        self._reset_filtered_result()
         self._check_and_enable_filter_btn()
 
     @on(Button.Pressed, "#filter_readings")
@@ -113,6 +114,13 @@ class NotPulledLastMonthApp(App):
         save_file_btn = self.query_one("#save_file", Button)
         save_file_btn.disabled = False
         save_file_btn.variant = "success"
+
+    def _reset_filtered_result(self) -> None:
+        self.xlsx_buffer = None
+
+        save_file_btn = self.query_one("#save_file", Button)
+        save_file_btn.disabled = True
+        save_file_btn.variant = "default"
 
     def _check_and_enable_filter_btn(self) -> None:
         if self.meter_readings_path is None:
