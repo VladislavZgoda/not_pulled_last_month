@@ -103,6 +103,7 @@ class NotPulledLastMonthApp(App):
         )
 
     def _on_filter_done(self, xlsx_buffer: BytesIO) -> None:
+        self.notify("Показания отфильтрованы.")
         self.xlsx_buffer = xlsx_buffer
         self.query_one("#filter_readings", Button).loading = False
         save_file_btn = self.query_one("#save_file", Button)
