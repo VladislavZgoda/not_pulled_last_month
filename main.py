@@ -90,6 +90,7 @@ class NotPulledLastMonthApp(App):
             with open(save_path.with_suffix(".xlsx"), "wb") as f:
                 f.write(self.xlsx_buffer.getvalue())
             self.notify("Файл сохранён.", timeout=10)
+            self._reset_state()
 
     def action_toggle_dark(self) -> None:
         self.theme = (
@@ -122,6 +123,22 @@ class NotPulledLastMonthApp(App):
         filter_ridings_btn = self.query_one("#filter_readings", Button)
         filter_ridings_btn.disabled = False
         filter_ridings_btn.variant = "warning"
+
+    def _reset_state(self) -> None:
+        self.meter_readings_path = None
+        self.application_nine_path = None
+        self.xlsx_buffer = None
+
+        for picker in self.query(FilePicker):
+            picker.reset()
+
+        filter_readings_btn = self.query_one("#filter_readings", Button)
+        filter_readings_btn.disabled = True
+        filter_readings_btn.variant = "default"
+
+        save_file_btn = self.query_one("#save_file", Button)
+        save_file_btn.disabled = True
+        save_file_btn.variant = "default"
 
 
 class FilePathSelected(Message):
@@ -156,6 +173,9 @@ class FilePicker(Widget):
         ):
             self.query_one(f"#{self.picker_id}_label", Label).update(file_opened.name)
             self.post_message(FilePathSelected(file_opened, self.picker_id))
+
+    def reset(self) -> None:
+        self.query_one(f"#{self.picker_id}_label", Label).update("")
 
 
 if __name__ == "__main__":
