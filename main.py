@@ -1,14 +1,13 @@
-import platform
 from io import BytesIO
 from pathlib import Path
 
 from textual import on, work
-from textual.app import App, ComposeResult, Widget
-from textual.message import Message
+from textual.app import App, ComposeResult
 from textual.reactive import var
-from textual.widgets import Button, Footer, Header, Label
-from textual_fspicker import FileOpen, FileSave, Filters
+from textual.widgets import Button, Footer, Header
+from textual_fspicker import FileSave
 
+from file_picker import FilePicker, FilePathSelected, FILE_LOCATION
 from create_workbook import create_wb
 from readings_filter import ReadingsFilter
 
@@ -16,13 +15,6 @@ from readings_filter import ReadingsFilter
 def main():
     app = NotPulledLastMonthApp()
     app.run()
-
-
-FILE_LOCATION = (
-    Path.home() / "Desktop" if platform.system() == "Windows" else Path.home()
-)
-
-FILE_FILTER = Filters(("XLSX", lambda p: p.suffix.lower() == ".xlsx"))
 
 
 class NotPulledLastMonthApp(App):
@@ -147,43 +139,6 @@ class NotPulledLastMonthApp(App):
         save_file_btn = self.query_one("#save_file", Button)
         save_file_btn.disabled = True
         save_file_btn.variant = "default"
-
-
-class FilePathSelected(Message):
-    def __init__(self, file_path: Path, picker_id: str) -> None:
-        self.file_path = file_path
-        self.picker_id = picker_id
-        super().__init__()
-
-
-class FilePicker(Widget):
-    def __init__(
-        self,
-        button_text: str,
-        picker_id: str,
-    ) -> None:
-        self.button_text = button_text
-        self.picker_id = picker_id
-        super().__init__()
-
-    def compose(self) -> ComposeResult:
-        yield Button(self.button_text, variant="primary", id=f"{self.picker_id}_btn")
-        yield Label(id=f"{self.picker_id}_label", variant="success")
-
-    @on(Button.Pressed)
-    @work
-    async def open_file(self, event: Button.Pressed) -> None:
-        if not event.button.id == f"{self.picker_id}_btn":
-            return
-
-        if file_opened := await self.app.push_screen_wait(
-            FileOpen(FILE_LOCATION, filters=FILE_FILTER)
-        ):
-            self.query_one(f"#{self.picker_id}_label", Label).update(file_opened.name)
-            self.post_message(FilePathSelected(file_opened, self.picker_id))
-
-    def reset(self) -> None:
-        self.query_one(f"#{self.picker_id}_label", Label).update("")
 
 
 if __name__ == "__main__":
